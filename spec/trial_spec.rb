@@ -199,7 +199,7 @@ describe Split::Trial do
         Split.configuration.on_trial_choose = nil
       end
 
-      it "user is assigned an alternative" do
+      it "assigns user to an alternative" do
         trial.choose! context
 
         expect(alternatives).to include(user[experiment.name])
