@@ -3,8 +3,6 @@ require "spec_helper"
 
 describe Split::Services::TimeBasedConversions do
 
-  subject { Split::Services::TimeBasedConversions }
-
   let(:user) { { "time_conversion_" + experiment_id => time_of_assignment } }
   let(:experiment_id) { "spec_experiment" }
   let(:time_now) do
