@@ -3,7 +3,7 @@ require "spec_helper"
 
 describe Split::Services::TimeBasedConversions do
 
-  let(:user) { { "time_conversion_" + experiment_id => time_of_assignment } }
+  let(:user) { { "time_of_assignment_" + experiment_id => time_of_assignment } }
   let(:experiment_id) { "spec_experiment" }
   let(:time_now) do
     time_now = Time.now
@@ -42,7 +42,7 @@ describe Split::Services::TimeBasedConversions do
     it "saves a Redis key that associates a user and experiment with the time they were assigned" do
       subject.save_time_that_user_is_assigned(user, experiment_id)
       puts user
-      expect(user["time_conversion_" + experiment_id]).to eql time_of_assignment.to_s
+      expect(user["time_of_assignment_" + experiment_id]).to eql time_of_assignment.to_s
     end
   end
 
