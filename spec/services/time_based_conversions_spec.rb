@@ -16,6 +16,15 @@ describe Split::Services::TimeBasedConversions do
       allow(Split.configuration).to receive(:experiments).and_return("spec_experiment" => { "window_of_time_for_conversion" => window_of_time })
     end
 
+    context "when the experiment has no window of time defined" do
+      let(:window_of_time) { nil }
+      let(:time_of_assignment) { time_now - 120*60 }
+
+      it "should return true" do
+        expect(subject.within_conversion_time_frame?(user, experiment_id)).to eq(true)
+      end
+    end
+
     context "when the conversion is outside the time window" do
       let(:window_of_time) { 60 }
       let(:time_of_assignment) { time_now - 120*60 }
