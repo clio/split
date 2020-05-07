@@ -205,6 +205,14 @@ describe Split::Trial do
         expect(alternatives).to include(user[experiment.name])
       end
 
+      it "delegates the saving of a timestamp to the TimeBasedConversions service" do
+        expect(
+            Split::Services::TimeBasedConversions
+        ).to receive(:save_time_that_user_is_assigned).once.with(user, experiment.key)
+
+        trial.choose! context
+      end
+
       context "when cohorting is disabled" do
         before(:each) { allow(experiment).to receive(:cohorting_disabled?).and_return(true) }
 
@@ -230,6 +238,17 @@ describe Split::Trial do
 
   describe "#complete!" do
     let(:trial) { Split::Trial.new(:user => user, :experiment => experiment) }
+
+    it "delegates the decision to record a conversion to the TimeBasedConversions service" do
+      trial.choose!
+
+      expect(
+          Split::Services::TimeBasedConversions
+      ).to receive(:within_conversion_time_frame?).once.with(user, experiment.key)
+
+      trial.complete!
+    end
+
     context 'when there are no goals' do
       it 'should complete the trial' do
         trial.choose!

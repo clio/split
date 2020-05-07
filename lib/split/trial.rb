@@ -35,7 +35,7 @@ module Split
 
     def complete!(goals=[], context = nil)
       if alternative
-        if TimeBasedConversions.within_conversion_time_frame?
+        if Split::Services::TimeBasedConversions.within_conversion_time_frame?(@user, @experiment.key)
           if Array(goals).empty?
             alternative.increment_completion
           else
@@ -81,7 +81,7 @@ module Split
               # Increment the number of participants since we are actually choosing a new alternative
               self.alternative.increment_participation
 
-              TimeBasedConversions.save_timestamp_for_user
+              Split::Services::TimeBasedConversions.save_time_that_user_is_assigned(@user, @experiment.key)
               run_callback context, Split.configuration.on_trial_choose
             end
           end
