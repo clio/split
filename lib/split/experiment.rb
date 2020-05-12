@@ -5,6 +5,7 @@ module Split
     attr_accessor :goals
     attr_accessor :alternative_probabilities
     attr_accessor :metadata
+    attr_accessor :friendly_name
 
     attr_reader :alternatives
     attr_reader :resettable
@@ -26,7 +27,8 @@ module Split
           goals: Split::GoalsCollection.new(@name).load_from_configuration,
           metadata: load_metadata_from_configuration,
           resettable: exp_config[:resettable],
-          algorithm: exp_config[:algorithm]
+          algorithm: exp_config[:algorithm],
+          friendly_name: exp_config[:friendly_name]
         }
       else
         options[:alternatives] = alternatives
@@ -49,6 +51,7 @@ module Split
       self.resettable = options_with_defaults[:resettable]
       self.algorithm = options_with_defaults[:algorithm]
       self.metadata = options_with_defaults[:metadata]
+      self.friendly_name = options_with_defaults[:friendly_name] || @name
     end
 
     def extract_alternatives_from_options(options)
@@ -68,6 +71,7 @@ module Split
           options[:metadata] = load_metadata_from_configuration
           options[:resettable] = exp_config[:resettable]
           options[:algorithm] = exp_config[:algorithm]
+          options[:friendly_name] = exp_config[:friendly_name]
         end
       end
 
@@ -261,6 +265,7 @@ module Split
       options = {
         resettable: exp_config['resettable'],
         algorithm: exp_config['algorithm'],
+        friendly_name: exp_config['friendly_name'],
         alternatives: load_alternatives_from_redis,
         goals: Split::GoalsCollection.new(@name).load_from_redis,
         metadata: load_metadata_from_redis
@@ -297,12 +302,6 @@ module Split
 
     def enable_cohorting
       redis.hset(experiment_config_key, :cohorting, false)
-    end
-
-    def friendly_name
-      return @name if metadata.nil? || metadata["friendly_name"].nil?
-
-      metadata["friendly_name"]
     end
 
     protected

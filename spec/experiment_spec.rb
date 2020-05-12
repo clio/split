@@ -118,13 +118,19 @@ describe Split::Experiment do
       experiment = Split::Experiment.new('basket_text', :alternatives => ['Basket', "Cart"], :resettable => false)
       expect(experiment.resettable).to be_falsey
     end
+
+    it "sets friendly_name" do
+      experiment = Split::Experiment.new('basket_text', :alternatives => ['Basket', "Cart"], :friendly_name => "foo")
+      expect(experiment.friendly_name).to eq("foo")
+    end
     
     context 'from configuration' do
       let(:experiment_name) { :my_experiment }
       let(:experiments) do
         {
           experiment_name => {
-            :alternatives => ['Control Opt', 'Alt one']
+            :alternatives => ['Control Opt', 'Alt one'],
+            :friendly_name => "foo"
           }
         }
       end
@@ -133,6 +139,10 @@ describe Split::Experiment do
       
       it 'assigns default values to the experiment' do
         expect(Split::Experiment.new(experiment_name).resettable).to eq(true)
+      end
+
+      it "sets friendly_name" do
+        expect(Split::Experiment.new(experiment_name).friendly_name).to eq("foo")
       end
     end
   end
@@ -418,38 +428,6 @@ describe Split::Experiment do
   describe "#enable_cohorting" do
     it "saves a new key in redis" do
       expect(experiment.enable_cohorting).to eq true
-    end
-  end
-
-  describe "#friendly_name" do
-    context "when metadata is not defined" do
-      let(:experiment) { Split::Experiment.new('basket_text', :alternatives => ['Basket', "Cart"], :algorithm => Split::Algorithms::BlockRandomization) }
-
-      it "returns the experiment name" do
-        experiment.save
-        e = Split::ExperimentCatalog.find('basket_text')
-        expect(e.friendly_name).to eql 'basket_text'
-      end
-    end
-
-    context "when friendly name is not defined in metadata" do
-      let(:experiment) { Split::Experiment.new('basket_text', :alternatives => ['Basket', "Cart"], :algorithm => Split::Algorithms::BlockRandomization, :metadata => {}) }
-
-      it "returns the experiment name" do
-        experiment.save
-        e = Split::ExperimentCatalog.find('basket_text')
-        expect(e.friendly_name).to eql 'basket_text'
-      end
-    end
-
-    context "when friendly name is defined in metadata" do
-      let(:experiment) { Split::Experiment.new('basket_text', :alternatives => ['Basket', "Cart"], :algorithm => Split::Algorithms::BlockRandomization, :metadata => { "friendly_name" => "foo" }) }
-
-      it "returns the friendly name" do
-        experiment.save
-        e = Split::ExperimentCatalog.find('basket_text')
-        expect(e.friendly_name).to eql 'foo'
-      end
     end
   end
 
