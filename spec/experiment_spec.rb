@@ -442,7 +442,7 @@ describe Split::Experiment do
       end
     end
 
-    context "when metadata is not defined" do
+    context "when friendly name is defined in metadata" do
       let(:experiment) { Split::Experiment.new('basket_text', :alternatives => ['Basket', "Cart"], :algorithm => Split::Algorithms::BlockRandomization, :metadata => { "friendly_name" => "foo" }) }
 
       it "returns the friendly name" do
