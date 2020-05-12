@@ -152,7 +152,7 @@ describe Split::Experiment do
     describe '#metadata' do
       let(:experiment) { Split::Experiment.new('basket_text', :alternatives => ['Basket', "Cart"], :algorithm => Split::Algorithms::BlockRandomization, :metadata => meta) }
       context 'simple hash' do
-        let(:meta) {  { 'basket' => 'a', 'cart' => 'b', 'friendly_name' => 'you_are_friendly' } }
+        let(:meta) {  { 'basket' => 'a', 'cart' => 'b' } }
         it "should persist metadata in redis" do
           experiment.save
           e = Split::ExperimentCatalog.find('basket_text')
