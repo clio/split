@@ -35,13 +35,15 @@ module Split
 
     def complete!(goals=[], context = nil)
       if alternative
-        if Split::Services::TimeBasedConversions.within_conversion_time_frame?(@user, @experiment.key)
+        if within_conversion_time_frame?
           if Array(goals).empty?
             alternative.increment_completion
           else
             Array(goals).each {|g| alternative.increment_completion(g) }
           end
         end
+
+        delete_time_of_assignment_key
 
         run_callback context, Split.configuration.on_trial_complete
       end
@@ -81,13 +83,16 @@ module Split
               # Increment the number of participants since we are actually choosing a new alternative
               self.alternative.increment_participation
 
-              Split::Services::TimeBasedConversions.save_time_that_user_is_assigned(@user, @experiment.key)
+              save_time_that_user_is_assigned
               run_callback context, Split.configuration.on_trial_choose
             end
           end
         end
       end
-
+      puts "AAH"
+      puts @user.keys
+      puts "K"
+      puts !should_store_alternative?
       @user[@experiment.key] = alternative.name unless @experiment.has_winner? || !should_store_alternative? || (new_participant && @experiment.cohorting_disabled?)
       @alternative_choosen = true
       run_callback context, Split.configuration.on_trial unless @options[:disabled] || Split.configuration.disabled? || (new_participant && @experiment.cohorting_disabled?) 
@@ -95,6 +100,28 @@ module Split
     end
 
     private
+
+    def delete_time_of_assignment_key
+      @user.delete("#{@experiment.key}:time_of_assignment")
+    end
+
+    def within_conversion_time_frame?
+      window_of_time_for_conversion = Split.configuration.experiments.dig(@experiment.key, "window_of_time_for_conversion")
+
+      return true if window_of_time_for_conversion.nil?
+
+      time_of_assignment = Time.parse(@user["#{@experiment.key}:time_of_assignment"])
+
+      (Time.now - time_of_assignment)/60 <= window_of_time_for_conversion
+    end
+
+    def save_time_that_user_is_assigned
+      puts "DUDE"
+      # puts @user.keys
+      @user["basket_text_dude"] = "cool"
+      puts @user.active_experiments
+      # @user["#{@experiment.key}:time_of_assignment"] = Time.now.to_s
+    end
 
     def run_callback(context, callback_name)
       context.send(callback_name, self) if callback_name && context.respond_to?(callback_name, true)

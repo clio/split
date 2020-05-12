@@ -201,16 +201,9 @@ describe Split::Trial do
 
       it "assigns user to an alternative" do
         trial.choose! context
+        # puts user.keys
 
         expect(alternatives).to include(user[experiment.name])
-      end
-
-      it "delegates the saving of a timestamp to the TimeBasedConversions service" do
-        expect(
-            Split::Services::TimeBasedConversions
-        ).to receive(:save_time_that_user_is_assigned).once.with(user, experiment.key)
-
-        trial.choose! context
       end
 
       context "when cohorting is disabled" do
@@ -239,14 +232,35 @@ describe Split::Trial do
   describe "#complete!" do
     let(:trial) { Split::Trial.new(:user => user, :experiment => experiment) }
 
-    it "delegates the decision to record a conversion to the TimeBasedConversions service" do
+    before do
+      allow(Split.configuration).to receive(:experiments).and_return(experiment.key => { "window_of_time_for_conversion" => 60 })
+
       trial.choose!
+    end
 
-      expect(
-          Split::Services::TimeBasedConversions
-      ).to receive(:within_conversion_time_frame?).once.with(user, experiment.key)
-
+    it "removes the time_of_assignment key for that experiment" do
       trial.complete!
+      expect(user[experiment.key + ":time_of_assignment"]).to be nil
+    end
+
+    context "and the user is not within the conversion time frame" do
+      it "does not convert" do
+        old_completed_count = trial.alternative.completed_count
+
+        allow(Time).to receive(:now).and_return(Time.now + 60*120)
+
+        trial.complete!
+        expect(trial.alternative.completed_count).to be(old_completed_count)
+      end
+    end
+
+    context "and the user is within the conversion time frame" do
+      it "does convert" do
+        old_completed_count = trial.alternative.completed_count
+
+        trial.complete!
+        expect(trial.alternative.completed_count).to be(old_completed_count+1)
+      end
     end
 
     context 'when there are no goals' do
