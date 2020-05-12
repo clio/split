@@ -55,7 +55,7 @@ module Split
     private
 
     def keys_without_experiment(keys, experiment_key)
-      keys.reject { |k| k.match(Regexp.new("^#{experiment_key}(:finished)?$")) }
+      keys.reject { |k| k.match(Regexp.new("^#{experiment_key}(:finished)?$")) || k.match("#{experiment_key}:time_of_assignment") }
     end
 
     def keys_without_finished_and_time_of_assignment(keys)
