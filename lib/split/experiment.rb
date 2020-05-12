@@ -27,8 +27,7 @@ module Split
           goals: Split::GoalsCollection.new(@name).load_from_configuration,
           metadata: load_metadata_from_configuration,
           resettable: exp_config[:resettable],
-          algorithm: exp_config[:algorithm],
-          friendly_name: exp_config[:friendly_name]
+          algorithm: exp_config[:algorithm]
         }
       else
         options[:alternatives] = alternatives
