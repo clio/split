@@ -89,10 +89,7 @@ module Split
           end
         end
       end
-      puts "AAH"
-      puts @user.keys
-      puts "K"
-      puts !should_store_alternative?
+
       @user[@experiment.key] = alternative.name unless @experiment.has_winner? || !should_store_alternative? || (new_participant && @experiment.cohorting_disabled?)
       @alternative_choosen = true
       run_callback context, Split.configuration.on_trial unless @options[:disabled] || Split.configuration.disabled? || (new_participant && @experiment.cohorting_disabled?) 
@@ -116,11 +113,7 @@ module Split
     end
 
     def save_time_that_user_is_assigned
-      puts "DUDE"
-      # puts @user.keys
-      @user["basket_text_dude"] = "cool"
-      puts @user.active_experiments
-      # @user["#{@experiment.key}:time_of_assignment"] = Time.now.to_s
+      @user["#{@experiment.key}:time_of_assignment"] = Time.now.to_s
     end
 
     def run_callback(context, callback_name)

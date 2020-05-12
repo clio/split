@@ -201,7 +201,6 @@ describe Split::Trial do
 
       it "assigns user to an alternative" do
         trial.choose! context
-        # puts user.keys
 
         expect(alternatives).to include(user[experiment.name])
       end
