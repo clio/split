@@ -145,6 +145,13 @@ describe Split::Experiment do
         expect(Split::Experiment.new(experiment_name).friendly_name).to eq("foo")
       end
     end
+
+    context 'when no friendly name is defined' do
+      it "defaults to experiment name" do
+        experiment = Split::Experiment.new('basket_text', :alternatives => ['Basket', "Cart"], :resettable => false)
+        expect(experiment.friendly_name).to eql("basket_text")
+      end
+    end
   end
 
   describe 'persistent configuration' do
