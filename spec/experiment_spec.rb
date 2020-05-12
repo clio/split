@@ -422,13 +422,34 @@ describe Split::Experiment do
   end
 
   describe "#friendly_name" do
-    let(:experiment) { Split::Experiment.new('basket_text', :alternatives => ['Basket', "Cart"], :algorithm => Split::Algorithms::BlockRandomization, :metadata => meta) }
-    let(:meta) {  { 'friendly_name' => 'you_are_friendly' } }
+    context "when metadata is not defined" do
+      let(:experiment) { Split::Experiment.new('basket_text', :alternatives => ['Basket', "Cart"], :algorithm => Split::Algorithms::BlockRandomization) }
 
-    it "should persist metadata in redis" do
-      experiment.save
-      e = Split::ExperimentCatalog.find('basket_text')
-      expect(e.friendly_name).to eql 'you_are_friendly'
+      it "returns the experiment name" do
+        experiment.save
+        e = Split::ExperimentCatalog.find('basket_text')
+        expect(e.friendly_name).to eql 'basket_text'
+      end
+    end
+
+    context "when friendly name is not defined in metadata" do
+      let(:experiment) { Split::Experiment.new('basket_text', :alternatives => ['Basket', "Cart"], :algorithm => Split::Algorithms::BlockRandomization, :metadata => {}) }
+
+      it "returns the experiment name" do
+        experiment.save
+        e = Split::ExperimentCatalog.find('basket_text')
+        expect(e.friendly_name).to eql 'basket_text'
+      end
+    end
+
+    context "when metadata is not defined" do
+      let(:experiment) { Split::Experiment.new('basket_text', :alternatives => ['Basket', "Cart"], :algorithm => Split::Algorithms::BlockRandomization, :metadata => { "friendly_name" => "foo" }) }
+
+      it "returns the friendly name" do
+        experiment.save
+        e = Split::ExperimentCatalog.find('basket_text')
+        expect(e.friendly_name).to eql 'foo'
+      end
     end
   end
 

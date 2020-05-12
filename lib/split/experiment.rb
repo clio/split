@@ -300,6 +300,8 @@ module Split
     end
 
     def friendly_name
+      return @name if metadata.nil? || metadata["friendly_name"].nil?
+
       metadata["friendly_name"]
     end
 
