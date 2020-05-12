@@ -152,7 +152,7 @@ describe Split::Experiment do
     describe '#metadata' do
       let(:experiment) { Split::Experiment.new('basket_text', :alternatives => ['Basket', "Cart"], :algorithm => Split::Algorithms::BlockRandomization, :metadata => meta) }
       context 'simple hash' do
-        let(:meta) {  { 'basket' => 'a', 'cart' => 'b' } }
+        let(:meta) {  { 'basket' => 'a', 'cart' => 'b', 'friendly_name' => 'you_are_friendly' } }
         it "should persist metadata in redis" do
           experiment.save
           e = Split::ExperimentCatalog.find('basket_text')
@@ -418,6 +418,17 @@ describe Split::Experiment do
   describe "#enable_cohorting" do
     it "saves a new key in redis" do
       expect(experiment.enable_cohorting).to eq true
+    end
+  end
+
+  describe "#friendly_name" do
+    let(:experiment) { Split::Experiment.new('basket_text', :alternatives => ['Basket', "Cart"], :algorithm => Split::Algorithms::BlockRandomization, :metadata => meta) }
+    let(:meta) {  { 'friendly_name' => 'you_are_friendly' } }
+
+    it "should persist metadata in redis" do
+      experiment.save
+      e = Split::ExperimentCatalog.find('basket_text')
+      expect(e.friendly_name).to eql 'you_are_friendly'
     end
   end
 

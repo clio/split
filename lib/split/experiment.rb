@@ -299,6 +299,10 @@ module Split
       redis.hset(experiment_config_key, :cohorting, false)
     end
 
+    def friendly_name
+      metadata["friendly_name"]
+    end
+
     protected
 
     def experiment_config_key
