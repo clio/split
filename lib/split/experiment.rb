@@ -376,7 +376,7 @@ module Split
       redis_interface.persist_list(name, @alternatives.map{|alt| {alt.name => alt.weight}.to_json})
       goals_collection.save
       redis.set(metadata_key, @metadata.to_json) unless @metadata.nil?
-      redis.set("#{@name}:friendly_name", self.friendly_name)
+      redis.set(friendly_name_key, self.friendly_name)
     end
 
     def remove_experiment_configuration
