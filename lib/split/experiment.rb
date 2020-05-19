@@ -27,7 +27,8 @@ module Split
           goals: Split::GoalsCollection.new(@name).load_from_configuration,
           metadata: load_metadata_from_configuration,
           resettable: exp_config[:resettable],
-          algorithm: exp_config[:algorithm]
+          algorithm: exp_config[:algorithm],
+          friendly_name: load_friendly_name_from_configuration
         }
       else
         options[:alternatives] = alternatives
@@ -229,6 +230,10 @@ module Split
       "#{name}:metadata"
     end
 
+    def friendly_name_key
+      "#{name}:friendly_name"
+    end
+
     def resettable?
       resettable
     end
@@ -264,7 +269,7 @@ module Split
       options = {
         resettable: exp_config['resettable'],
         algorithm: exp_config['algorithm'],
-        friendly_name: exp_config['friendly_name'],
+        friendly_name: load_friendly_name_from_redis,
         alternatives: load_alternatives_from_redis,
         goals: Split::GoalsCollection.new(@name).load_from_redis,
         metadata: load_metadata_from_redis
@@ -318,6 +323,14 @@ module Split
       JSON.parse(meta) unless meta.nil?
     end
 
+    def load_friendly_name_from_configuration
+      Split.configuration.experiment_for(@name)[:friendly_name]
+    end
+
+    def load_friendly_name_from_redis
+      redis.get(friendly_name_key)
+    end
+
     def load_alternatives_from_configuration
       alts = Split.configuration.experiment_for(@name)[:alternatives]
       raise ArgumentError, "Experiment configuration is missing :alternatives array" unless alts
@@ -363,6 +376,7 @@ module Split
       redis_interface.persist_list(name, @alternatives.map{|alt| {alt.name => alt.weight}.to_json})
       goals_collection.save
       redis.set(metadata_key, @metadata.to_json) unless @metadata.nil?
+      redis.set("#{@name}:friendly_name", self.friendly_name)
     end
 
     def remove_experiment_configuration
