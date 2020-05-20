@@ -96,15 +96,17 @@ module Split
     end
 
     def within_conversion_time_frame?
-      if @within_conversion_time_frame
+      if !@within_conversion_time_frame.nil?
         @within_conversion_time_frame
       else
-        window_of_time_for_conversion_in_minutes = Split.configuration.experiments.dig(@experiment.name, "window_of_time_for_conversion_in_minutes")
+        @within_conversion_time_frame = begin
+          window_of_time_for_conversion_in_minutes = Split.configuration.experiments.dig(@experiment.name, "window_of_time_for_conversion_in_minutes")
 
-        return true if window_of_time_for_conversion_in_minutes.nil?
+          return true if window_of_time_for_conversion_in_minutes.nil?
 
-        time_of_assignment = Time.parse(@user["#{@experiment.name}:time_of_assignment"])
-        @within_conversion_time_frame = (Time.now - time_of_assignment)/60 <= window_of_time_for_conversion_in_minutes
+          time_of_assignment = Time.parse(@user["#{@experiment.name}:time_of_assignment"])
+          (Time.now - time_of_assignment)/60 <= window_of_time_for_conversion_in_minutes
+        end
       end
     end
 
