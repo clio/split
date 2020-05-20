@@ -43,9 +43,8 @@ module Split
           end
         end
 
-        delete_time_of_assignment_key
-
         run_callback context, Split.configuration.on_trial_complete
+        delete_time_of_assignment_key
       end
     end
 
