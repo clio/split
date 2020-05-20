@@ -43,8 +43,8 @@ module Split
           end
         end
 
-        run_callback context, Split.configuration.on_trial_complete
         delete_time_of_assignment_key
+        run_callback context, Split.configuration.on_trial_complete
       end
     end
 
@@ -96,13 +96,16 @@ module Split
     end
 
     def within_conversion_time_frame?
-      window_of_time_for_conversion_in_minutes = Split.configuration.experiments.dig(@experiment.name, "window_of_time_for_conversion_in_minutes")
+      if @within_conversion_time_frame
+        @within_conversion_time_frame
+      else
+        window_of_time_for_conversion_in_minutes = Split.configuration.experiments.dig(@experiment.name, "window_of_time_for_conversion_in_minutes")
 
-      return true if window_of_time_for_conversion_in_minutes.nil?
+        return true if window_of_time_for_conversion_in_minutes.nil?
 
-      time_of_assignment = Time.parse(@user["#{@experiment.name}:time_of_assignment"])
-
-      (Time.now - time_of_assignment)/60 <= window_of_time_for_conversion_in_minutes
+        time_of_assignment = Time.parse(@user["#{@experiment.name}:time_of_assignment"])
+        @within_conversion_time_frame = (Time.now - time_of_assignment)/60 <= window_of_time_for_conversion_in_minutes
+      end
     end
 
     private
