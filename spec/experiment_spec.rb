@@ -123,7 +123,7 @@ describe Split::Experiment do
       experiment = Split::Experiment.new('basket_text', :alternatives => ['Basket', "Cart"], :friendly_name => "foo")
       expect(experiment.friendly_name).to eq("foo")
     end
-    
+
     context 'from configuration' do
       let(:experiment_name) { :my_experiment }
       let(:experiments) do
@@ -136,7 +136,7 @@ describe Split::Experiment do
       end
 
       before { Split.configuration.experiments = experiments }
-      
+
       it 'assigns default values to the experiment' do
         expect(Split::Experiment.new(experiment_name).resettable).to eq(true)
       end
@@ -256,10 +256,15 @@ describe Split::Experiment do
   end
 
   describe 'winner=' do
-    it "should allow you to specify a winner" do
+    it 'should allow you to specify a winner' do
       experiment.save
       experiment.winner = 'red'
       expect(experiment.winner.name).to eq('red')
+    end
+
+    it 'should call the on_experiment_winner_choose hook' do
+      expect(Split.configuration.on_experiment_winner_choose).to receive(:call)
+      experiment.winner = 'green'
     end
 
     context 'when has_winner state is memoized' do
