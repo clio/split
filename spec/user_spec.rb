@@ -54,7 +54,7 @@ describe Split::User do
       expect(@subject.keys).to be_empty
     end
 
-    it 'keeps keys if the experiment has no winnder and has started' do
+    it 'keeps keys if the experiment has no winner and has started' do
       allow(Split::ExperimentCatalog).to receive(:find).with('link_color').and_return(experiment)
       allow(experiment).to receive(:has_winner?).and_return(false)
       allow(experiment).to receive(:start_time).and_return(Date.today)
