@@ -89,7 +89,7 @@ describe Split::User do
       before { 2.times { experiment.increment_version } }
 
       context "user has a key from a first version of the experiment" do
-        let(:user_keys) { { 'link_color' => 'blue' } }
+        let(:user_keys) { { "link_color" => "blue" } }
 
         it "returns the current experiment key" do
           expect(@subject.alternative_key_for_experiment(experiment)).to eq("link_color")
@@ -97,7 +97,7 @@ describe Split::User do
       end
 
       context "user has a key from a previous version of the experiment" do
-        let(:user_keys) { { 'link_color:1' => 'blue' } }
+        let(:user_keys) { { "link_color:1" => "blue" } }
 
         it "returns the current experiment key" do
           expect(@subject.alternative_key_for_experiment(experiment)).to eq("link_color:1")
@@ -105,7 +105,7 @@ describe Split::User do
       end
 
       context "user has the same key as the current version of the experiment" do 
-        let(:user_keys) { { 'link_color:2' => 'blue' } }
+        let(:user_keys) { { "link_color:2" => "blue" } }
 
         it "returns the current experiment key" do
           expect(@subject.alternative_key_for_experiment(experiment)).to eq("link_color:2")

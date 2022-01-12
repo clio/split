@@ -377,7 +377,7 @@ describe Split::Helper do
           @experiment.increment_version
         end
 
-        it 'should not increment the counter for the completed alternative' do
+        it "increments the counter for the completed alternative" do
           ab_finished(@experiment_name)
           new_completion_count = Split::Alternative.new(@alternative_name, @experiment_name).completed_count
           expect(new_completion_count).to eq(@previous_completion_count)
@@ -389,7 +389,7 @@ describe Split::Helper do
           @experiment.retain_user_alternatives_after_reset = true
         end
 
-        it 'should increment the counter for the completed alternative' do
+        it "increments the counter for the completed alternative" do
           ab_finished(@experiment_name)
           new_completion_count = Split::Alternative.new(@alternative_name, @experiment_name).completed_count
           expect(new_completion_count).to eq(@previous_completion_count + 1)
@@ -402,7 +402,7 @@ describe Split::Helper do
           @experiment.increment_version
         end
 
-        it 'should not increment the counter for the completed alternative' do
+        it "does not increment the counter for the completed alternative" do
           ab_finished(@experiment_name)
           new_completion_count = Split::Alternative.new(@alternative_name, @experiment_name).completed_count
           expect(new_completion_count).to eq(@previous_completion_count)
@@ -414,7 +414,7 @@ describe Split::Helper do
           @experiment.retain_user_alternatives_after_reset = false
         end
 
-        it 'should increment the counter for the completed alternative' do
+        it "increments the counter for the completed alternative" do
           ab_finished(@experiment_name)
           new_completion_count = Split::Alternative.new(@alternative_name, @experiment_name).completed_count
           expect(new_completion_count).to eq(@previous_completion_count + 1)

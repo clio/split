@@ -124,7 +124,7 @@ describe Split::Experiment do
     end
 
     it "should be possible to make an experiment retain user alternatives after reset" do
-      experiment = Split::Experiment.new('basket_text', :alternatives => ['Basket', "Cart"], :retain_user_alternatives_after_reset => true)
+      experiment = Split::Experiment.new("basket_text", :alternatives => ["Basket", "Cart"], :retain_user_alternatives_after_reset => true)
       expect(experiment.resettable).to be_truthy
     end
 
@@ -177,10 +177,10 @@ describe Split::Experiment do
     end
 
     it "should persist retain_user_alternatives_after_reset in redis" do
-      experiment = Split::Experiment.new('basket_text', :alternatives => ['Basket', "Cart"], :retain_user_alternatives_after_reset => true)
+      experiment = Split::Experiment.new("basket_text", :alternatives => ['Basket', "Cart"], :retain_user_alternatives_after_reset => true)
       experiment.save
 
-      e = Split::ExperimentCatalog.find('basket_text')
+      e = Split::ExperimentCatalog.find("basket_text")
       expect(e).to eq(experiment)
       expect(e.retain_user_alternatives_after_reset).to be_truthy
     end
