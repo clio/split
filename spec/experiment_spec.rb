@@ -125,7 +125,7 @@ describe Split::Experiment do
 
     it "should be possible to make an experiment retain user alternatives after reset" do
       experiment = Split::Experiment.new("basket_text", :alternatives => ["Basket", "Cart"], :retain_user_alternatives_after_reset => true)
-      expect(experiment.resettable).to be_truthy
+      expect(experiment.retain_user_alternatives_after_reset).to be_truthy
     end
 
     it "sets friendly_name" do
