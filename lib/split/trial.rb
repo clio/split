@@ -101,8 +101,6 @@ module Split
       alternative
     end
 
-    private
-
     def within_conversion_time_frame?
       if !@within_conversion_time_frame.nil?
         @within_conversion_time_frame
@@ -117,6 +115,8 @@ module Split
         end
       end
     end
+
+    private
 
     def user_experiment_key
       @user_experiment_key ||= @user.alternative_key_for_experiment(@experiment)
