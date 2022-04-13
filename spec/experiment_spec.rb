@@ -480,13 +480,13 @@ describe Split::Experiment do
 
   describe "#disable_cohorting" do
     it "saves a new key in redis" do
-      expect(experiment.disable_cohorting).to eq true
+      expect(experiment.disable_cohorting).to eq 1
     end
   end
 
   describe "#enable_cohorting" do
     it "saves a new key in redis" do
-      expect(experiment.enable_cohorting).to eq true
+      expect(experiment.enable_cohorting).to eq 1
     end
   end
 
