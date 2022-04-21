@@ -115,10 +115,6 @@ module Split
         end
       end
 
-      def keys_without_finished(keys)
-        keys.reject { |k| k.include?(":finished") }
-      end
-
       def key_without_version(key)
         key.split(/\:\d(?!\:)/)[0]
       end
