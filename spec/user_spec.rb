@@ -75,8 +75,7 @@ describe Split::User do
 
     context 'current version has number' do
       before do
-        experiment.reset
-        experiment.reset
+        2.times { experiment.reset }
       end
 
       describe 'when the user is in the experiment without version number' do
@@ -132,6 +131,7 @@ describe Split::User do
         'link_color' => 'blue',
         'link_color:finished' => true,
         'link_color:time_of_assignment' => Time.now.to_s,
+        'link_color:eligibility' => "ELIGIBLE",
       }
     end
 
@@ -468,6 +468,99 @@ describe Split::User do
         it "returns the current experiment key" do
           expect(@subject.alternative_key_for_experiment(experiment)).to eq("link_color:2")
         end
+      end
+    end
+  end
+
+  context "#all_fields_for_experiment_key" do
+    context "when user has experiment fields" do
+      let(:user_keys) do
+        {
+          'link_color' => 'blue',
+          'link_color:finished' => true,
+          'link_color:time_of_assignment' => Time.now.to_s,
+          'link_color:eligibility' => "ELIGIBLE",
+          'link_color_v2' => 'blue',
+          'link_color:1' => 'blue',
+          'lk_cl' => 'blue',
+        }
+      end
+
+      it "returns only the experiment fields" do
+        expect(@subject.all_fields_for_experiment_key(experiment.key)).to eq(
+                        %w[link_color link_color:finished link_color:time_of_assignment link_color:eligibility])
+      end
+    end
+
+    context "when user has versioned experiment fields" do
+      let(:user_keys) do
+        {
+          'link_color:1' => 'blue',
+          'link_color:1:finished' => true,
+          'link_color:1:time_of_assignment' => Time.now.to_s,
+          'link_color:1:eligibility' => "ELIGIBLE",
+          'link_color_v2:1' => 'blue',
+          'link_color' => 'blue',
+          'link_color:2' => 'blue',
+          'lk_cl:1' => 'blue',
+        }
+      end
+
+      it "returns only the versioned fields" do
+        expect(@subject.all_fields_for_experiment_key("link_color:1")).to eq(
+                  %w[link_color:1 link_color:1:finished link_color:1:time_of_assignment link_color:1:eligibility])
+      end
+    end
+  end
+
+  context "#first_field_from_all_versions" do
+    describe "when experiment field doesn't have version" do
+      let(:user_keys) do
+        {
+          'link_color' => 'blue',
+          'link_color:eligibility' => "ELIGIBLE",
+          'link_color_v2' => 'blue',
+          'link_color:1' => 'blue',
+          'lk_cl' => 'blue',
+        }
+      end
+
+      it "returns experiment key" do
+        expect(@subject.first_field_from_all_versions(experiment)).to eq(experiment.key)
+      end
+
+      it "returns experiment field" do
+        expect(@subject.first_field_from_all_versions(experiment, "eligibility")).to eq('link_color:eligibility')
+      end
+
+      it "returns nil for non-exist field" do
+        expect(@subject.first_field_from_all_versions(experiment, "random_field")).to be_nil
+      end
+    end
+
+    describe "when  experiment field has version" do
+      let(:user_keys) do
+        {
+          'link_color:2' => 'blue',
+          'link_color:2:eligibility' => "ELIGIBLE",
+          'link_color_v2:1' => 'blue',
+          'lk_cl:1' => 'blue',
+        }
+      end
+      before do
+        3.times { experiment.reset }
+      end
+
+      it "returns versioned experiment key" do
+        expect(@subject.first_field_from_all_versions(experiment)).to eq("link_color:2")
+      end
+
+      it "returns versioned experiment field" do
+        expect(@subject.first_field_from_all_versions(experiment, "eligibility")).to eq('link_color:2:eligibility')
+      end
+
+      it "returns nil for non-exist field" do
+        expect(@subject.first_field_from_all_versions(experiment, "random_field")).to be_nil
       end
     end
   end
