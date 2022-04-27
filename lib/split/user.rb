@@ -14,9 +14,22 @@ module Split
 
     def cleanup_old_experiments!
       return if @cleaned_up
+      exp_to_delete = {}
+
       user.keys.each do |key|
-        experiment = ExperimentCatalog.find experiment_name(key)
-        if experiment.nil? || experiment.has_winner? || experiment.start_time.nil?
+        exp_name = experiment_name(key)
+
+        unless exp_to_delete.include?(exp_name)
+          experiment = ExperimentCatalog.find exp_name
+
+          if experiment.nil? || experiment.has_winner? || experiment.start_time.nil?
+            exp_to_delete[exp_name] = true
+          else
+            exp_to_delete[exp_name] = false
+          end
+        end
+
+        if exp_to_delete[exp_name]
           user.delete key
         end
       end

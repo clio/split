@@ -352,7 +352,7 @@ describe Split::Trial do
     end
 
     it "removes the context keys for that experiment" do
-      user[experiment.key + ":eligibility"] = "ELIGIBLE"
+      user[experiment.key + ":external_key"] = "value"
       trial.complete!
       expect(user.keys).to eq [experiment.key]
     end
