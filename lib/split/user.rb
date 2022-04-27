@@ -21,12 +21,7 @@ module Split
 
         unless exp_to_delete.include?(exp_name)
           experiment = ExperimentCatalog.find exp_name
-
-          if experiment.nil? || experiment.has_winner? || experiment.start_time.nil?
-            exp_to_delete[exp_name] = true
-          else
-            exp_to_delete[exp_name] = false
-          end
+          exp_to_delete[exp_name] = experiment.nil? || experiment.has_winner? || experiment.start_time.nil?
         end
 
         if exp_to_delete[exp_name]
