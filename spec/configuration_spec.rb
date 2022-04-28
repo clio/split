@@ -135,6 +135,9 @@ describe Split::Configuration do
                   percent: 23
               resettable: false
               retain_user_alternatives_after_reset: true
+              algorithm: Split::Algorithms::SystematicSampling
+              cohorting_block_seed: 999
+              cohorting_block_magnitude: 3
               metric: my_metric
             another_experiment:
               alternatives:
@@ -145,8 +148,9 @@ describe Split::Configuration do
         end
 
         it "should normalize experiments" do
-          expect(@config.normalized_experiments).to eq({:my_experiment=>{:resettable=>false,:retain_user_alternatives_after_reset=>true,:alternatives=>[{"Control Opt"=>0.67},
-            [{"Alt One"=>0.1}, {"Alt Two"=>0.23}]]}, :another_experiment=>{:alternatives=>["a", ["b"]]}})
+          expect(@config.normalized_experiments).to eq({:my_experiment=>{:resettable=>false,:retain_user_alternatives_after_reset=>true, :cohorting_block_magnitude=>3,
+            :algorithm=>"Split::Algorithms::SystematicSampling", :cohorting_block_seed=>999,:alternatives=>[{"Control Opt"=>0.67},[{"Alt One"=>0.1}, {"Alt Two"=>0.23}]]},
+            :another_experiment=>{:alternatives=>["a", ["b"]]}})
         end
 
         it "should recognize metrics" do

@@ -2,61 +2,76 @@
 require "spec_helper"
 
 describe Split::Algorithms::SystematicSampling do
-  # it "should return an alternative" do
-  #   experiment = Split::ExperimentCatalog.find_or_create('link_color', {'blue' => 100}, {'red' => 0 })
-  #   expect(Split::Algorithms::WeightedSample.choose_alternative(experiment).class).to eq(Split::Alternative)
-  # end
+  let(:experiment) do
+    Split::Experiment.new(
+      'link_color',
+      :alternatives => ['red', 'blue', 'green'],
+      :algorithm => Split::Algorithms::SystematicSampling,
+      :cohorting_block_magnitude => 2
+    )
+  end
 
-  # it "should always return a heavily weighted option" do
-  #   experiment = Split::ExperimentCatalog.find_or_create('link_color', {'blue' => 100}, {'red' => 0 })
-  #   expect(Split::Algorithms::WeightedSample.choose_alternative(experiment).name).to eq('blue')
-  # end
+  it "should return an alternative" do
+    expect(Split::Algorithms::SystematicSampling.choose_alternative(experiment).class).to eq(Split::Alternative)
+  end
 
-  context "for a valid experiment" do
-    let!(:valid_experiment) do
-      Split::Experiment.new('link_color', :alternatives => ['red', 'blue', 'green'], :cohorting_block => ['red', 'blue', 'green'])
-    end
-  
-    let(:red_alternative) { Split::Alternative.new('red', 'link_color') }
+  context "experiments with a random seed" do
+    it "cohorts the first block of users equally into each alternative" do
+      results = {'red' => 0, 'blue' => 0, 'green' => 0}
+      6.times do
+        results[Split::Algorithms::SystematicSampling.choose_alternative(experiment).name] += 1
+      end
 
-    it "cohorts the first user into the first alternative defined in cohorting_block" do
-      expect(Split::Algorithms::SystematicSampling.choose_alternative(valid_experiment).name).to equal "red"
-    end
-
-    it "cohorts the second user into the second alternative defined in cohorting_block" do
-      red_alternative.increment_participation
-
-      expect(Split::Algorithms::SystematicSampling.choose_alternative(valid_experiment).name).to equal "blue"
+      expect(experiment.cohorting_block_magnitude * experiment.alternatives.length).to eq(6)
+      expect(results).to eq({'red' => 2, 'blue' => 2, 'green' => 2})
     end
 
-    it "cohorts the fourth user into the first alternative defined in cohorting_block" do
-      red_alternative.increment_participation
-      red_alternative.increment_participation
-      red_alternative.increment_participation
+    it "cohorts the second block of users equally into each alternative" do
+      6.times do
+        Split::Algorithms::SystematicSampling.choose_alternative(experiment).name
+      end
 
-      expect(Split::Algorithms::SystematicSampling.choose_alternative(valid_experiment).name).to equal "red"
+      results = {'red' => 0, 'blue' => 0, 'green' => 0}
+      6.times do
+        results[Split::Algorithms::SystematicSampling.choose_alternative(experiment).name] += 1
+      end
+
+      expect(experiment.cohorting_block_magnitude * experiment.alternatives.length).to eq(6)
+      expect(results).to eq({'red' => 2, 'blue' => 2, 'green' => 2})
     end
   end
 
-  context "for an experiment with no cohorting_block defined" do
-    let!(:missing_config_experiment) do
-      Split::Experiment.new('link_color', :alternatives => ['red', 'blue', 'green'])
+  context "experiments with set seed" do
+    let(:seeded_experiment1) do
+      Split::Experiment.new(
+        'link_color',
+        :alternatives => ['red', 'blue', 'green'],
+        :algorithm => Split::Algorithms::SystematicSampling,
+        :cohorting_block_seed => 1234
+      )
     end
 
-    it "Throws argument error with descriptive message" do
-      expect { Split::Algorithms::SystematicSampling.choose_alternative(missing_config_experiment).name }
-        .to raise_error(ArgumentError, "Experiment configuration is missing cohorting_block array")
-    end
-  end
-
-  context "for an experiment with invalid cohorting_block defined" do 
-    let!(:invalid_config_experiment) do
-      Split::Experiment.new('link_color', :alternatives => ['red', 'blue', 'green'], :cohorting_block => ['notarealalternative', 'blue', 'green'])
+    let(:seeded_experiment2) do
+      Split::Experiment.new('link_highlight',
+        :alternatives => ['red', 'blue', 'green'],
+        :algorithm => Split::Algorithms::SystematicSampling,
+        :cohorting_block_seed => 1234)
     end
 
-    it "Throws argument error with descriptive message" do
-      expect { Split::Algorithms::SystematicSampling.choose_alternative(invalid_config_experiment).name }
-        .to raise_error(ArgumentError, "Invalid cohorting_block: 'notarealalternative' is not an experiment alternative")
+    it "cohorts users in a set order" do
+      results1 = []
+      results2 = []
+
+      12.times do
+        results1 << Split::Algorithms::SystematicSampling.choose_alternative(seeded_experiment1).name
+      end
+
+      12.times do
+        results2 << Split::Algorithms::SystematicSampling.choose_alternative(seeded_experiment2).name
+      end
+
+      expect(seeded_experiment1.cohorting_block_seed).to eq(seeded_experiment2.cohorting_block_seed)
+      expect(results1).to eq(results2)
     end
   end
 end

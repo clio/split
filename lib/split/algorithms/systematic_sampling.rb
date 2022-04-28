@@ -3,15 +3,14 @@ module Split
   module Algorithms
     module SystematicSampling
       def self.choose_alternative(experiment)
-        block = experiment.cohorting_block
-        raise ArgumentError, "Experiment configuration is missing cohorting_block array" unless block
-        index = experiment.participant_count % block.length
-        chosen_alternative = block[index]
-        alt = experiment.alternatives.find do |alt|
-          alt.name == chosen_alternative
-        end
-        raise ArgumentError, "Invalid cohorting_block: '#{chosen_alternative}' is not an experiment alternative" unless alt
-        alt
+        count = experiment.next_cohorting_block_index
+
+        block_length = experiment.cohorting_block_magnitude * experiment.alternatives.length
+        block_num, index = count.divmod block_length
+
+        r = Random.new(block_num + experiment.cohorting_block_seed)
+        block = (experiment.alternatives*experiment.cohorting_block_magnitude).shuffle(random: r)
+        block[index]
       end
     end
   end
