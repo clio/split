@@ -128,6 +128,16 @@ describe Split::Experiment do
       expect(experiment.retain_user_alternatives_after_reset).to be_truthy
     end
 
+    it "should be possible to make a SystematicSampling algorithm experiment with a seeded cohorting block" do
+      experiment = Split::Experiment.new("basket_text", :alternatives => ["Basket", "Cart"], algorithm: Split::Algorithms::SystematicSampling, :cohorting_block_seed => 123)
+      expect(experiment.cohorting_block_seed).to eq(123)
+    end
+
+    it "should be possible to make a SystematicSampling algorithm experiment with a custom cohorting block magnitude" do
+      experiment = Split::Experiment.new("basket_text", :alternatives => ["Basket", "Cart"], algorithm: Split::Algorithms::SystematicSampling, :cohorting_block_magnitude => 4)
+      expect(experiment.cohorting_block_magnitude).to eq(4)
+    end
+
     it "sets friendly_name" do
       experiment = Split::Experiment.new('basket_text', :alternatives => ['Basket', "Cart"], :friendly_name => "foo")
       expect(experiment.friendly_name).to eq("foo")
@@ -149,6 +159,18 @@ describe Split::Experiment do
       it 'assigns default values to the experiment' do
         expect(Split::Experiment.new(experiment_name).resettable).to eq(true)
         expect(Split::Experiment.new(experiment_name).retain_user_alternatives_after_reset).to eq(false)
+      end
+
+      it 'when the experiment is using SystematicSampling algorithm, assigns cohorting_block_magnitude to a default value' do
+        expect(Split::Experiment.new('systematic_sampling_exp', algorithm: Split::Algorithms::SystematicSampling).cohorting_block_magnitude).to eq(1)
+      end
+
+      it 'when the experiment is using SystematicSampling algorithm, assigns cohorting_block_seed to a default value' do
+        expect(Split::Experiment.new('systematic_sampling_exp', algorithm: Split::Algorithms::SystematicSampling).cohorting_block_seed)
+          .to eq(2476)
+
+        expect(Split::Experiment.new('systematic_sampling_exp2', algorithm: Split::Algorithms::SystematicSampling).cohorting_block_seed)
+          .to eq(2526)
       end
 
       it "sets friendly_name" do
@@ -183,6 +205,24 @@ describe Split::Experiment do
       e = Split::ExperimentCatalog.find("basket_text")
       expect(e).to eq(experiment)
       expect(e.retain_user_alternatives_after_reset).to be_truthy
+    end
+
+    it "should persist cohorting_block_magnitude" do
+      experiment = Split::Experiment.new("basket_text", :alternatives => ['Basket', "Cart"], algorithm: Split::Algorithms::SystematicSampling, :cohorting_block_magnitude => 2)
+      experiment.save
+
+      e = Split::ExperimentCatalog.find("basket_text")
+      expect(e).to eq(experiment)
+      expect(e.cohorting_block_magnitude).to eq(2)
+    end
+
+    it "should persist cohorting_block_seed" do
+      experiment = Split::Experiment.new("basket_text", :alternatives => ['Basket', "Cart"], algorithm: Split::Algorithms::SystematicSampling, :cohorting_block_seed => 12345)
+      experiment.save
+
+      e = Split::ExperimentCatalog.find("basket_text")
+      expect(e).to eq(experiment)
+      expect(e.cohorting_block_seed).to eq(12345)
     end
 
     describe '#metadata' do
@@ -424,6 +464,23 @@ describe Split::Experiment do
       experiment.retain_user_alternatives_after_reset = false
 
       expect(experiment.retain_user_alternatives_after_reset).to be false
+    end
+  end
+
+  describe '#next_cohorting_block_count' do
+    it 'increments each call and starts at 0' do
+      expect(experiment.next_cohorting_block_count).to eq(0)
+      expect(experiment.next_cohorting_block_count).to eq(1)
+      expect(experiment.next_cohorting_block_count).to eq(2)
+      expect(experiment.next_cohorting_block_count).to eq(3)
+    end
+
+    it 'persists value' do
+      expect(experiment.next_cohorting_block_count).to eq(0)
+      experiment.save
+
+      e = Split::ExperimentCatalog.find("link_color")
+      expect(e.next_cohorting_block_count).to eq(1)
     end
   end
 

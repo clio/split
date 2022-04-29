@@ -9,6 +9,8 @@ module Split
     attr_accessor :alternative_probabilities
     attr_accessor :metadata
     attr_accessor :friendly_name
+    attr_accessor :cohorting_block_seed
+    attr_accessor :cohorting_block_magnitude
 
     attr_reader :alternatives
     attr_reader :resettable
@@ -17,6 +19,7 @@ module Split
     DEFAULT_OPTIONS = {
       :resettable => true,
       :retain_user_alternatives_after_reset => false,
+      :cohorting_block_magnitude => 1
     }
 
     def initialize(name, options = {})
@@ -43,6 +46,11 @@ module Split
       self.metadata = options_with_defaults[:metadata]
       self.friendly_name = options_with_defaults[:friendly_name] || @name
       self.retain_user_alternatives_after_reset = options_with_defaults[:retain_user_alternatives_after_reset]
+
+      if self.algorithm == Split::Algorithms::SystematicSampling
+        self.cohorting_block_seed = options_with_defaults[:cohorting_block_seed] || self.name.sum
+        self.cohorting_block_magnitude = options_with_defaults[:cohorting_block_magnitude]
+      end
     end
 
     def extract_alternatives_from_options(options)
@@ -64,6 +72,8 @@ module Split
           options[:algorithm] = exp_config[:algorithm]
           options[:friendly_name] = exp_config[:friendly_name]
           options[:retain_user_alternatives_after_reset] = exp_config[:retain_user_alternatives_after_reset]
+          options[:cohorting_block_seed] = exp_config[:cohorting_block_seed]
+          options[:cohorting_block_magnitude] = exp_config[:cohorting_block_magnitude]
         end
       end
 
@@ -232,6 +242,14 @@ module Split
       "#{name}:friendly_name"
     end
 
+    def cohorting_block_seed_key
+      "#{name}:cohorting_block_seed"
+    end
+
+    def cohorting_block_magnitude_key
+      "#{name}:cohorting_block_magnitude"
+    end
+
     def resettable?
       resettable
     end
@@ -266,6 +284,8 @@ module Split
 
       options = {
         retain_user_alternatives_after_reset: exp_config['retain_user_alternatives_after_reset'],
+        cohorting_block_seed: load_cohorting_block_seed_from_redis,
+        cohorting_block_magnitude: load_cohorting_block_magnitude_from_redis,
         resettable: exp_config['resettable'],
         algorithm: exp_config['algorithm'],
         friendly_name: load_friendly_name_from_redis,
@@ -423,6 +443,10 @@ module Split
       redis.hset(experiment_config_key, :cohorting, false)
     end
 
+    def next_cohorting_block_count
+      Split.redis.incr("#{key}:cohorting_block_count") - 1
+    end
+
     protected
 
     def experiment_config_key
@@ -444,6 +468,14 @@ module Split
 
     def load_friendly_name_from_redis
       redis.get(friendly_name_key)
+    end
+
+    def load_cohorting_block_seed_from_redis
+      redis.get(cohorting_block_seed_key).to_i
+    end
+
+    def load_cohorting_block_magnitude_from_redis
+      redis.get(cohorting_block_magnitude_key).to_i
     end
 
     def load_alternatives_from_configuration
@@ -492,6 +524,8 @@ module Split
       goals_collection.save
       redis.set(metadata_key, @metadata.to_json) unless @metadata.nil?
       redis.set(friendly_name_key, self.friendly_name)
+      redis.set(cohorting_block_seed_key, self.cohorting_block_seed)
+      redis.set(cohorting_block_magnitude_key, self.cohorting_block_magnitude)
     end
 
     def remove_experiment_configuration
