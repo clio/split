@@ -22,7 +22,6 @@ describe Split::Algorithms::SystematicSampling do
         results[Split::Algorithms::SystematicSampling.choose_alternative(experiment).name] += 1
       end
 
-      expect(experiment.cohorting_block_magnitude * experiment.alternatives.length).to eq(6)
       expect(results).to eq({'red' => 2, 'blue' => 2, 'green' => 2})
     end
 
@@ -36,7 +35,6 @@ describe Split::Algorithms::SystematicSampling do
         results[Split::Algorithms::SystematicSampling.choose_alternative(experiment).name] += 1
       end
 
-      expect(experiment.cohorting_block_magnitude * experiment.alternatives.length).to eq(6)
       expect(results).to eq({'red' => 2, 'blue' => 2, 'green' => 2})
     end
   end
@@ -52,7 +50,8 @@ describe Split::Algorithms::SystematicSampling do
     end
 
     let(:seeded_experiment2) do
-      Split::Experiment.new('link_highlight',
+      Split::Experiment.new(
+        'link_highlight',
         :alternatives => ['red', 'blue', 'green'],
         :algorithm => Split::Algorithms::SystematicSampling,
         :cohorting_block_seed => 1234)

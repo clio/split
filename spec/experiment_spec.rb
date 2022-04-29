@@ -167,10 +167,10 @@ describe Split::Experiment do
 
       it 'when the experiment is using SystematicSampling algorithm, assigns cohorting_block_seed to a default value' do
         expect(Split::Experiment.new('systematic_sampling_exp', algorithm: Split::Algorithms::SystematicSampling).cohorting_block_seed)
-          .to eq(387211932128858527590062598078109)
+          .to eq(2476)
 
         expect(Split::Experiment.new('systematic_sampling_exp2', algorithm: Split::Algorithms::SystematicSampling).cohorting_block_seed)
-          .to eq(13939629556638906993242253530811926)
+          .to eq(2526)
       end
 
       it "sets friendly_name" do
@@ -467,20 +467,20 @@ describe Split::Experiment do
     end
   end
 
-  describe '#next_cohorting_block_index' do
+  describe '#next_cohorting_block_count' do
     it 'increments each call and starts at 0' do
-      expect(experiment.next_cohorting_block_index).to eq(0)
-      expect(experiment.next_cohorting_block_index).to eq(1)
-      expect(experiment.next_cohorting_block_index).to eq(2)
-      expect(experiment.next_cohorting_block_index).to eq(3)
+      expect(experiment.next_cohorting_block_count).to eq(0)
+      expect(experiment.next_cohorting_block_count).to eq(1)
+      expect(experiment.next_cohorting_block_count).to eq(2)
+      expect(experiment.next_cohorting_block_count).to eq(3)
     end
 
     it 'persists value' do
-      expect(experiment.next_cohorting_block_index).to eq(0)
+      expect(experiment.next_cohorting_block_count).to eq(0)
       experiment.save
 
       e = Split::ExperimentCatalog.find("link_color")
-      expect(e.next_cohorting_block_index).to eq(1)
+      expect(e.next_cohorting_block_count).to eq(1)
     end
   end
 

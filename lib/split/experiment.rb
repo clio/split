@@ -48,7 +48,7 @@ module Split
       self.retain_user_alternatives_after_reset = options_with_defaults[:retain_user_alternatives_after_reset]
 
       if self.algorithm == Split::Algorithms::SystematicSampling
-        self.cohorting_block_seed = options_with_defaults[:cohorting_block_seed] || self.name.to_i(36)
+        self.cohorting_block_seed = options_with_defaults[:cohorting_block_seed] || self.name.sum
         self.cohorting_block_magnitude = options_with_defaults[:cohorting_block_magnitude]
       end
     end
@@ -443,8 +443,8 @@ module Split
       redis.hset(experiment_config_key, :cohorting, false)
     end
 
-    def next_cohorting_block_index
-      Split.redis.incr("#{name}:cohorting_block_index") - 1
+    def next_cohorting_block_count
+      Split.redis.incr("#{name}:cohorting_block_count") - 1
     end
 
     protected
