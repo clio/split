@@ -444,7 +444,7 @@ module Split
     end
 
     def next_cohorting_block_count
-      Split.redis.incr("#{name}:cohorting_block_count") - 1
+      Split.redis.incr("#{key}:cohorting_block_count") - 1
     end
 
     protected
