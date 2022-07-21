@@ -29,7 +29,6 @@ module Split
         end
       end
       @cleaned_up = true
-      debugger
     end
 
     def max_experiments_reached?(experiment_key)
