@@ -34,7 +34,7 @@ module Split
           account_id: account_id,
           property: property
         ).first_or_initialize
-        record.update!(value: value);
+        record.update!(value: value)
       end
 
       #-------------
@@ -49,7 +49,7 @@ module Split
           account_id: account_id,
           property: property
         ).first_or_initialize
-        record.update!(value: value);
+        record.update!(value: value)
       end
 
       def delete(field)
