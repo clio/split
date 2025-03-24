@@ -275,6 +275,30 @@ describe Split::Helper do
     end
   end
 
+  context "with ab_test_user_qualified is set" do
+    context "ab_test_user_qualified returns true" do
+      def ab_test_user_qualified?
+        true
+      end
+
+      it "user is qualified to participate in experiment" do
+        ab_test('link_color', 'blue', 'red')
+        expect(['red', 'blue']).to include(ab_user['link_color'])
+      end
+    end
+
+    context "ab_test_user_qualified returns false" do
+      def ab_test_user_qualified?
+        false
+      end
+
+      it "user is not qualified to participate in experiment" do
+        ab_test('link_color', 'blue', 'red')
+        expect(ab_user['link_color']).to eq(nil)
+      end
+    end
+  end
+
   describe "metadata" do
     context "is defined" do
       before do
@@ -403,7 +427,7 @@ describe Split::Helper do
             @experiment.increment_version
           end
 
-          it "increments the counter for the completed alternative" do
+          it "does not increment the counter for the completed alternative" do
             ab_finished(@experiment_name)
             new_completion_count = Split::Alternative.new(@alternative_name, @experiment_name).completed_count
             expect(new_completion_count).to eq(@previous_completion_count)

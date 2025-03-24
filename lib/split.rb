@@ -5,6 +5,7 @@ require "redis"
 require "split/algorithms"
 require "split/algorithms/block_randomization"
 require "split/algorithms/weighted_sample"
+require 'split/algorithms/whiplash'
 require "split/alternative"
 require "split/cache"
 require "split/configuration"
