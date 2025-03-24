@@ -130,7 +130,7 @@ describe Split::Experiment do
     end
 
     it "sets friendly_name" do
-      experiment = Split::Experiment.new('basket_text', :alternatives => ['Basket', "Cart"], :friendly_name => "foo")
+      experiment = Split::Experiment.new("basket_text", :alternatives => ["Basket", "Cart"], :friendly_name => "foo")
       expect(experiment.friendly_name).to eq("foo")
     end
 
@@ -157,9 +157,9 @@ describe Split::Experiment do
       end
     end
 
-    context 'when no friendly name is defined' do
+    context "when no friendly name is defined" do
       it "defaults to experiment name" do
-        experiment = Split::Experiment.new('basket_text', :alternatives => ['Basket', "Cart"], :resettable => false)
+        experiment = Split::Experiment.new("basket_text", :alternatives => ["Basket", "Cart"], :resettable => false)
         expect(experiment.friendly_name).to eql("basket_text")
       end
     end
@@ -176,7 +176,7 @@ describe Split::Experiment do
     end
 
     it "should persist retain_user_alternatives_after_reset in redis" do
-      experiment = Split::Experiment.new("basket_text", :alternatives => ['Basket', "Cart"], :retain_user_alternatives_after_reset => true)
+      experiment = Split::Experiment.new("basket_text", :alternatives => ["Basket", "Cart"], :retain_user_alternatives_after_reset => true)
       experiment.save
 
       e = Split::ExperimentCatalog.find("basket_text")
@@ -636,8 +636,8 @@ describe Split::Experiment do
       expect(experiment.alternatives[0].p_winner).to be_within(0.04).of(0.50)
     end
 
-    it "should calculate the probability of being the winning alternative separately for each goal", :skip => true do
-      experiment = Split::ExperimentCatalog.find_or_create({"link_color3" => ["purchase", "refund"]}, "blue", "red", "green")
+    it "should calculate the probability of being the winning alternative separately for each goal", skip: true do
+      experiment = Split::ExperimentCatalog.find_or_create({ "link_color3" => ["purchase", "refund"] }, "blue", "red", "green")
       goal1 = experiment.goals[0]
       goal2 = experiment.goals[1]
       experiment.alternatives.each do |alternative|
@@ -652,8 +652,19 @@ describe Split::Experiment do
       expect(p_goal1).not_to be_within(0.04).of(p_goal2)
     end
 
+    it "should not calculate when data is not valid for beta distribution" do
+      experiment = Split::ExperimentCatalog.find_or_create("scientists", "einstein", "bohr")
+
+      experiment.alternatives.each do |alternative|
+        alternative.participant_count = 9
+        alternative.set_completed_count(10)
+      end
+
+      expect { experiment.calc_winning_alternatives }.to_not raise_error
+    end
+
     it "should return nil and not re-calculate probabilities if they have already been calculated today" do
-      experiment = Split::ExperimentCatalog.find_or_create({"link_color3" => ["purchase", "refund"]}, "blue", "red", "green")
+      experiment = Split::ExperimentCatalog.find_or_create({ "link_color3" => ["purchase", "refund"] }, "blue", "red", "green")
       expect(experiment.calc_winning_alternatives).not_to be nil
       expect(experiment.calc_winning_alternatives).to be nil
     end

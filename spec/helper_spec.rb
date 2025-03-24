@@ -282,8 +282,8 @@ describe Split::Helper do
       end
 
       it "user is qualified to participate in experiment" do
-        ab_test('link_color', 'blue', 'red')
-        expect(['red', 'blue']).to include(ab_user['link_color'])
+        ab_test("link_color", "blue", "red")
+        expect(["red", "blue"]).to include(ab_user["link_color"])
       end
     end
 
@@ -293,8 +293,8 @@ describe Split::Helper do
       end
 
       it "user is not qualified to participate in experiment" do
-        ab_test('link_color', 'blue', 'red')
-        expect(ab_user['link_color']).to eq(nil)
+        ab_test("link_color", "blue", "red")
+        expect(ab_user["link_color"]).to eq(nil)
       end
     end
   end

@@ -158,10 +158,10 @@ describe Split::User do
       context "when user is already in an experiment" do
         let(:user_keys) do
           {
-            'link_color' => 'blue',
-            'link_color:finished' => true,
-            'link_color:time_of_assignment' => Time.now.to_s,
-            'link_color:external_key' => "value",
+            "link_color" => "blue",
+            "link_color:finished" => true,
+            "link_color:time_of_assignment" => Time.now.to_s,
+            "link_color:external_key" => "value",
           }
         end
 
@@ -177,10 +177,10 @@ describe Split::User do
       context "when user is already in an experiment with version number" do
         let(:user_keys) do
           {
-            'link_color:1' => 'blue',
-            'link_color:1:finished' => true,
-            'link_color:1:time_of_assignment' => Time.now.to_s,
-            'link_color:1:external_key' => "value",
+            "link_color:1" => "blue",
+            "link_color:1:finished" => true,
+            "link_color:1:time_of_assignment" => Time.now.to_s,
+            "link_color:1:external_key" => "value",
           }
         end
 
@@ -204,7 +204,7 @@ describe Split::User do
 
     context "when multiple experiments with control are allowed" do
       let(:alternatives) { [ "control", "blue" ] }
-      let(:experiment2) { Split::Experiment.new('link_shape') }
+      let(:experiment2) { Split::Experiment.new("link_shape") }
 
       before do
         Split.configuration.allow_multiple_experiments = "control"
@@ -227,10 +227,10 @@ describe Split::User do
       context "user is in control with experiment2" do
         let(:user_keys) do
           {
-            'link_shape' => 'control',
-            'link_shape:finished' => true,
-            'link_shape:time_of_assignment' => Time.now.to_s,
-            'link_shape:external_key' => "value",
+            "link_shape" => "control",
+            "link_shape:finished" => true,
+            "link_shape:time_of_assignment" => Time.now.to_s,
+            "link_shape:external_key" => "value",
           }
         end
 
@@ -242,14 +242,14 @@ describe Split::User do
       context "user is in alternative with experiment1, control with experiment2" do
         let(:user_keys) do
           {
-            'link_color' => 'blue',
-            'link_color:finished' => true,
-            'link_color:time_of_assignment' => Time.now.to_s,
-            'link_color:external_key' => "value",
-            'link_shape' => 'control',
-            'link_shape:finished' => true,
-            'link_shape:time_of_assignment' => Time.now.to_s,
-            'link_shape:external_key' => "value",
+            "link_color" => "blue",
+            "link_color:finished" => true,
+            "link_color:time_of_assignment" => Time.now.to_s,
+            "link_color:external_key" => "value",
+            "link_shape" => "control",
+            "link_shape:finished" => true,
+            "link_shape:time_of_assignment" => Time.now.to_s,
+            "link_shape:external_key" => "value",
           }
         end
 
@@ -261,17 +261,17 @@ describe Split::User do
 
     context "when multiple experiments are allowed" do
       let(:alternatives) { [ "control", "blue" ] }
-      let(:experiment2) { Split::Experiment.new('link_shape') }
+      let(:experiment2) { Split::Experiment.new("link_shape") }
       let(:user_keys) do
         {
-          'link_color' => 'blue',
-          'link_color:finished' => true,
-          'link_color:time_of_assignment' => Time.now.to_s,
-          'link_color:external_key' => "value",
-          'link_shape' => 'blue',
-          'link_shape:finished' => true,
-          'link_shape:time_of_assignment' => Time.now.to_s,
-          'link_shape:external_key' => "value",
+          "link_color" => "blue",
+          "link_color:finished" => true,
+          "link_color:time_of_assignment" => Time.now.to_s,
+          "link_color:external_key" => "value",
+          "link_shape" => "blue",
+          "link_shape:finished" => true,
+          "link_shape:time_of_assignment" => Time.now.to_s,
+          "link_shape:external_key" => "value",
         }
       end
 
@@ -291,10 +291,10 @@ describe Split::User do
     context "when the experiment has no version number" do
       let(:user_keys) do
         {
-          'link_color' => 'blue',
-          'link_color:finished' => true,
-          'link_color:time_of_assignment' => Time.now.to_s,
-          'link_color:external_key' => "value",
+          "link_color" => "blue",
+          "link_color:finished" => true,
+          "link_color:time_of_assignment" => Time.now.to_s,
+          "link_color:external_key" => "value",
         }
       end
 
@@ -306,13 +306,13 @@ describe Split::User do
 
       context "when the experiment exists" do
         before do
-          allow(Split::ExperimentCatalog).to receive(:find).with('link_color').and_return(experiment)
+          allow(Split::ExperimentCatalog).to receive(:find).with("link_color").and_return(experiment)
         end
 
         it "only includes the experiment when there is no winner" do
           allow(experiment).to receive(:has_winner?).and_return(false)
 
-          expect(@subject.active_experiments).to eq({'link_color' => 'blue'})
+          expect(@subject.active_experiments).to eq({"link_color" => "blue"})
         end
 
         it "doesn't include the experiment when there is a winner" do
@@ -326,10 +326,10 @@ describe Split::User do
     context "when the experiment has a version number" do
       let(:user_keys) do
         {
-          'link_color:1' => 'blue',
-          'link_color:1:finished' => true,
-          'link_color:1:time_of_assignment' => Time.now.to_s,
-          'link_color:1:external_key' => "value",
+          "link_color:1" => "blue",
+          "link_color:1:finished" => true,
+          "link_color:1:time_of_assignment" => Time.now.to_s,
+          "link_color:1:external_key" => "value",
         }
       end
       before do
@@ -344,13 +344,13 @@ describe Split::User do
 
       context "when the experiment exists" do
         before do
-          allow(Split::ExperimentCatalog).to receive(:find).with('link_color').and_return(experiment)
+          allow(Split::ExperimentCatalog).to receive(:find).with("link_color").and_return(experiment)
         end
 
         it "only includes the experiment when there is no winner" do
           allow(experiment).to receive(:has_winner?).and_return(false)
 
-          expect(@subject.active_experiments).to eq({'link_color' => 'blue'})
+          expect(@subject.active_experiments).to eq({"link_color" => "blue"})
         end
 
         it "doesn't include the experiment when there is a winner" do
