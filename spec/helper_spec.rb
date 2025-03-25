@@ -257,7 +257,7 @@ describe Split::Helper do
         end
 
         it "lets override existing choice" do
-          pending "this requires user store reset on first call not depending on whelther it is current trial"
+          pending "this requires user store reset on first call not depending on whether it is current trial"
           @params = { "ab_test" => { "test_1" => "test-alt" } }
 
           expect(ab_test(:test_0, { "control" => 0 }, { "test-alt" => 100 })).to eq "control"

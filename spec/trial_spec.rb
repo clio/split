@@ -348,6 +348,8 @@ describe Split::Trial do
   end
 
   describe "#complete!" do
+    let(:trial) { Split::Trial.new(user: user, experiment: experiment) }
+
     before do
       allow(Split.configuration).to receive(:experiments).and_return(experiment.name => { "window_of_time_for_conversion_in_minutes" => 60 })
 
@@ -382,6 +384,7 @@ describe Split::Trial do
 
     context "when there are no goals" do
       let(:trial) { Split::Trial.new(user: user, experiment: experiment) }
+
       it "should complete the trial" do
         trial.choose!
         old_completed_count = trial.alternative.completed_count

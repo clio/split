@@ -64,7 +64,7 @@ describe Split::Configuration do
     expect(@config.metrics.keys).to eq([:my_metric])
   end
 
-  it "should allow loading of experiment using experment_for" do
+  it "should allow loading of experiment using experiment_for" do
     @config.experiments = { my_experiment: { alternatives: ["control_opt", "other_opt"], metric: :my_metric } }
     expect(@config.experiment_for(:my_experiment)).to eq({ alternatives: ["control_opt", ["other_opt"]] })
   end
@@ -86,7 +86,7 @@ describe Split::Configuration do
 
         it "should normalize experiments" do
           expect(@config.normalized_experiments)
-            .to eq({:my_experiment=>{:resettable=>false,:retain_user_alternatives_after_reset=>true,:alternatives=>["Control Opt", ["Alt One", "Alt Two"]]}})
+            .to eq({:my_experiment=>{:resettable=>false,:alternatives=>["Control Opt", ["Alt One", "Alt Two"]]}})
         end
       end
 
