@@ -13,20 +13,7 @@ Split is a rack based A/B testing framework designed to work with Rails, Sinatra
 
 Split is heavily inspired by the [Abingo](https://github.com/ryanb/abingo) and [Vanity](https://github.com/assaf/vanity) Rails A/B testing plugins and [Resque](https://github.com/resque/resque) in its use of Redis.
 
-Split is designed to be hacker friendly, allowing for maximum customisation and extensibility.
-
-## Clio Modifications
-
-Clio determined that the usage of SimpleRandom within Split was a licensing risk given that SimpleRandom is CDDL and Split is MIT.
-This fork exists so we can use Split without encountering licensing difficulties. Specifically we have removed SimpleRandom as a dependency
- and any references to it in the code:
-
-- Whiplash algorithm module
-- Probability of winners
-
-Ideally the master Split repository will replace SimpleRandom with a suitably-licensed library at which point Clio will discontinue this fork. 
-
-## Install
+Split is designed to be hacker friendly, allowing for maximum customization and extensibility.
 
 ### Requirements
 
@@ -37,6 +24,8 @@ If your project requires compatibility with Ruby 2.4.x or older Rails versions. 
 Split uses Redis as a datastore.
 
 Split only supports Redis 4.0 or greater.
+
+### Install
 
 If you're on OS X, Homebrew is the simplest way to install Redis:
 
@@ -172,8 +161,9 @@ In the event you want to disable all tests without having to know the individual
 
 It is not required to send `SPLIT_DISABLE=false` to activate Split.
 
+### Testing
 
-### Rspec Helper
+#### Rspec Helper
 To aid testing with RSpec, write `spec/support/split_helper.rb` and call `use_ab_test(alternatives_by_experiment)` in your specs as instructed below:
 
 ```ruby
@@ -211,6 +201,19 @@ it "registers using experimental signup" do
 end
 ```
 
+#### Running tests
+
+Ensure the redis server is running (see install instructions).
+
+To run a single spec:
+```
+bundle exec rspec <file_path>
+```
+
+To run all specs in the repo:
+```
+bundle install rspec --profile
+```
 
 ### Starting experiments manually
 
@@ -773,7 +776,7 @@ Split.redis = split_config[Rails.env]
 
 ### Redis Caching (v4.0+)
 
-In some high-volume usage scenarios, Redis load can be incurred by repeated 
+In some high-volume usage scenarios, Redis load can be incurred by repeated
 fetches for fairly static data.  Enabling caching will reduce this load.
 
  ```ruby

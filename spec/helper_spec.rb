@@ -257,7 +257,7 @@ describe Split::Helper do
         end
 
         it "lets override existing choice" do
-          pending "this requires user store reset on first call not depending on whelther it is current trial"
+          pending "this requires user store reset on first call not depending on whether it is current trial"
           @params = { "ab_test" => { "test_1" => "test-alt" } }
 
           expect(ab_test(:test_0, { "control" => 0 }, { "test-alt" => 100 })).to eq "control"
@@ -272,6 +272,30 @@ describe Split::Helper do
       finished_session = ab_user.dup
       ab_test("link_color", "blue", "red")
       expect(ab_user).to eq(finished_session)
+    end
+  end
+
+  context "with ab_test_user_qualified is set" do
+    context "ab_test_user_qualified returns true" do
+      def ab_test_user_qualified?
+        true
+      end
+
+      it "user is qualified to participate in experiment" do
+        ab_test("link_color", "blue", "red")
+        expect(["red", "blue"]).to include(ab_user["link_color"])
+      end
+    end
+
+    context "ab_test_user_qualified returns false" do
+      def ab_test_user_qualified?
+        false
+      end
+
+      it "user is not qualified to participate in experiment" do
+        ab_test("link_color", "blue", "red")
+        expect(ab_user["link_color"]).to eq(nil)
+      end
     end
   end
 
@@ -346,12 +370,6 @@ describe Split::Helper do
         @previous_completion_count = Split::Alternative.new(@alternative_name, @experiment_name).completed_count
       end
 
-      it "should increment the counter for the completed alternative" do
-        ab_finished(@experiment_name)
-        new_completion_count = Split::Alternative.new(@alternative_name, @experiment_name).completed_count
-        expect(new_completion_count).to eq(@previous_completion_count + 1)
-      end
-
       it "should set experiment's finished key if reset is false" do
         ab_finished(@experiment_name, { reset: false })
         expect(ab_user[@experiment.key]).to eq(@alternative_name)
@@ -400,6 +418,60 @@ describe Split::Helper do
         expect(ab_user[@experiment.key]).to eq(@alternative_name)
         ab_finished(@experiment_name)
         expect(ab_user.keys).to be_empty
+      end
+
+      context "when the user is in a previous version of the experiment" do
+        context "and retain_user_alternatives_after_reset is true" do
+          before do
+            @experiment.retain_user_alternatives_after_reset = true
+            @experiment.increment_version
+          end
+
+          it "does not increment the counter for the completed alternative" do
+            ab_finished(@experiment_name)
+            new_completion_count = Split::Alternative.new(@alternative_name, @experiment_name).completed_count
+            expect(new_completion_count).to eq(@previous_completion_count)
+          end
+        end
+
+        context "and retain_user_alternatives_after_reset is false" do
+          before do
+            @experiment.retain_user_alternatives_after_reset = false
+            @experiment.increment_version
+          end
+
+          it "does not increment the counter for the completed alternative" do
+            ab_finished(@experiment_name)
+            new_completion_count = Split::Alternative.new(@alternative_name, @experiment_name).completed_count
+            expect(new_completion_count).to eq(@previous_completion_count)
+          end
+        end
+      end
+
+      context "when the user is in current version of the experiment" do
+        context "and retain_user_alternatives_after_reset is true" do
+          before do
+            @experiment.retain_user_alternatives_after_reset = true
+          end
+
+          it "increments the counter for the completed alternative" do
+            ab_finished(@experiment_name)
+            new_completion_count = Split::Alternative.new(@alternative_name, @experiment_name).completed_count
+            expect(new_completion_count).to eq(@previous_completion_count + 1)
+          end
+        end
+
+        context "and retain_user_alternatives_after_reset is false" do
+          before do
+            @experiment.retain_user_alternatives_after_reset = false
+          end
+
+          it "increments the counter for the completed alternative" do
+            ab_finished(@experiment_name)
+            new_completion_count = Split::Alternative.new(@alternative_name, @experiment_name).completed_count
+            expect(new_completion_count).to eq(@previous_completion_count + 1)
+          end
+        end
       end
 
       context "when on_trial_complete is set" do

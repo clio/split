@@ -64,7 +64,7 @@ describe Split::Configuration do
     expect(@config.metrics.keys).to eq([:my_metric])
   end
 
-  it "should allow loading of experiment using experment_for" do
+  it "should allow loading of experiment using experiment_for" do
     @config.experiments = { my_experiment: { alternatives: ["control_opt", "other_opt"], metric: :my_metric } }
     expect(@config.experiment_for(:my_experiment)).to eq({ alternatives: ["control_opt", ["other_opt"]] })
   end
@@ -85,7 +85,8 @@ describe Split::Configuration do
         end
 
         it "should normalize experiments" do
-          expect(@config.normalized_experiments).to eq({ my_experiment: { resettable: false, alternatives: ["Control Opt", ["Alt One", "Alt Two"]] } })
+          expect(@config.normalized_experiments)
+            .to eq({:my_experiment=>{:resettable=>false,:alternatives=>["Control Opt", ["Alt One", "Alt Two"]]}})
         end
       end
 
@@ -131,6 +132,7 @@ describe Split::Configuration do
                 - name: Alt Two
                   percent: 23
               resettable: false
+              retain_user_alternatives_after_reset: true
               metric: my_metric
             another_experiment:
               alternatives:
@@ -141,8 +143,15 @@ describe Split::Configuration do
         end
 
         it "should normalize experiments" do
-          expect(@config.normalized_experiments).to eq({ my_experiment: { resettable: false, alternatives: [{ "Control Opt"=>0.67 },
-            [{ "Alt One"=>0.1 }, { "Alt Two"=>0.23 }]] }, another_experiment: { alternatives: ["a", ["b"]] } })
+          expect(@config.normalized_experiments).to eq(
+            {
+              my_experiment: {
+                resettable: false,
+                :retain_user_alternatives_after_reset=>true,
+                alternatives: [{ "Control Opt"=>0.67 }, [{ "Alt One"=>0.1 }, { "Alt Two"=>0.23 }]]
+              },
+              another_experiment: { alternatives: ["a", ["b"]] }
+            })
         end
 
         it "should recognize metrics" do

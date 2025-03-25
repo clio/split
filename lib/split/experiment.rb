@@ -110,7 +110,7 @@ module Split
     end
 
     def new_record?
-      !redis.exists(name)
+      !redis.exists?(name)
     end
 
     def ==(obj)
@@ -259,6 +259,7 @@ module Split
       end
       reset_winner
       redis.srem(:experiments, name)
+      redis.hdel(experiment_config_key, :cohorting)
       remove_experiment_cohorting
       remove_experiment_configuration
       Split.configuration.on_experiment_delete.call(self)
@@ -432,12 +433,12 @@ module Split
 
     def disable_cohorting
       @cohorting_disabled = true
-      redis.hset(experiment_config_key, :cohorting, true)
+      redis.hset(experiment_config_key, :cohorting, "true")
     end
 
     def enable_cohorting
       @cohorting_disabled = false
-      redis.hset(experiment_config_key, :cohorting, false)
+      redis.hset(experiment_config_key, :cohorting, "false")
     end
 
     protected

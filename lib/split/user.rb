@@ -12,6 +12,16 @@ module Split
       @cleaned_up = false
     end
 
+    def self.find(user_id, adapter)
+      adapter = adapter.is_a?(Symbol) ? Split::Persistence::ADAPTERS[adapter] : adapter
+
+      if adapter.respond_to?(:find)
+        User.new(nil, adapter.find(user_id))
+      else
+        nil
+      end
+    end
+
     def cleanup_old_experiments!
       return if @cleaned_up
       exp_to_delete = {}
