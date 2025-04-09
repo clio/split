@@ -52,7 +52,7 @@ jobs:
         run: ruby -v
 
       - name: Test
-        run: bundle exec rspec
+        run: bundle exec rspec --profile
         env:
           REDIS_URL: redis:6379
 
