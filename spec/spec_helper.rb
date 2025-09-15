@@ -23,7 +23,11 @@ module GlobalSharedContext
     Split.configuration = Split::Configuration.new
     Split.redis = Redis.new
     Split.redis.select(10)
-    Split.redis.flushdb
+    begin
+      Split.redis.call("FLUSHDB_IS_A_PROTECTED_COMMAND")
+    rescue Redis::CommandError
+      Split.redis.flushdb
+    end
     Split::Cache.clear
     @ab_user = mock_user
     @params = nil
