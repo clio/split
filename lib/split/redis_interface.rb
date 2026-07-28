@@ -21,8 +21,9 @@ module Split
     end
 
     def add_to_set(set_name, value)
-      return redis.sadd?(set_name, value) if redis.respond_to?(:sadd?)
-
+      # `sadd?` is not a command redis-namespace (< 2.0) knows how to namespace: it
+      # falls through as a blind passthrough and drops the namespace prefix, so members
+      # end up in an un-namespaced key. `sadd` is namespaced correctly, so always use it.
       redis.sadd(set_name, value)
     end
 
